@@ -1,0 +1,47 @@
+import React, { useState } from 'react';
+import MATRIX_FRAMES from './data/matrix';
+import { useDynamicTransition } from './hooks';
+
+const minimumDelay = 10;
+const minimumIncrement = 1;
+
+export default function Matrix() {
+  const [delay, setDelay] = useState(500);
+  const [increment, setIncrement] = useState(5);
+
+  const index = useDynamicTransition({
+    delay,
+    increment,
+    length: MATRIX_FRAMES.length,
+  });
+
+  const updateDelay = (event) => {
+    const delay = Number(event.target.value);
+
+    setDelay(delay < minimumDelay ? minimumDelay : delay);
+  };
+
+  const updateIncrement = (event) => {
+    const increment = Number(event.target.value);
+
+    setIncrement(increment < minimumIncrement ? minimumIncrement : increment);
+  };
+
+  return (
+    <div className="gallery">
+      <div className="galery-img">
+        <img src={MATRIX_FRAMES[index]} alt="matrix-animation" />
+      </div>
+      <div className="multiform">
+        <div>
+          Delay:
+          <input type="number" value={delay} onChange={updateDelay} />
+        </div>
+        <div>
+          increment:
+          <input type="number" value={increment} onChange={updateIncrement} />
+        </div>
+      </div>
+    </div>
+  );
+}
