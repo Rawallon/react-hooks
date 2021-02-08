@@ -1,32 +1,75 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useReducer } from 'react';
+
+// Reducer
+const initialTaskStates = {
+  tasks: [],
+  completedTask: [],
+};
+const TYPES = {
+  ADD_TASK: 'ADD_TASK',
+  COMPLETE_TASK: 'COMPLETE_TASK',
+  DELETE_TASK: 'DELETE_TASK',
+};
+const taskReducer = (state, action) => {
+  // console.log('state', state, 'action', action);
+  switch (action.type) {
+    case TYPES.ADD_TASK:
+      return { ...state, tasks: [...state.tasks, action.task] };
+    case TYPES.COMPLETE_TASK:
+      return {
+        ...state,
+        completedTask: [...state.completedTask, action.completedTask],
+        tasks: state.tasks.filter((el) => el.id !== action.completedTask.id),
+      };
+    case TYPES.DELETE_TASK:
+      return {
+        ...state,
+        completedTask: state.tasks.filter(
+          (el) => el.id !== action.completedTask.id,
+        ),
+      };
+    default:
+      return state;
+  }
+};
+// localStorage
 const TASKS_STORAGE_KEY = 'todoTasks';
 const storeTasks = (taskMap) => {
   localStorage.setItem(TASKS_STORAGE_KEY, JSON.stringify(taskMap));
 };
 const readStoredTasks = () => {
   const tasksMap = JSON.parse(localStorage.getItem(TASKS_STORAGE_KEY));
-  return tasksMap ? tasksMap : { tasks: [], completedTask: [] };
+  return tasksMap ? tasksMap : initialTaskStates;
 };
-
+// Component
 export default function Task() {
   const [taskText, setTaskText] = useState('');
   const taskStorage = readStoredTasks();
-  const [tasks, setTasks] = useState(taskStorage.tasks);
-  const [completedTask, setCompletedTask] = useState(taskStorage.completedTask);
+  const [state, dispatch] = useReducer(taskReducer, taskStorage);
+  const { tasks, completedTask } = state;
 
   const updateTaskText = (e) => {
     setTaskText(e.target.value);
   };
 
   const addTask = () => {
-    setTasks([...tasks, { text: taskText, id: new Date().getTime() }]);
+    setTaskText('');
+    dispatch({
+      type: TYPES.ADD_TASK,
+      task: { text: taskText, id: new Date().getTime() },
+    });
   };
   const completeTask = (cTask) => {
-    setCompletedTask([...completedTask, cTask]);
-    setTasks(tasks.filter((el) => el.id !== cTask.id));
+    dispatch({
+      type: TYPES.COMPLETE_TASK,
+      completedTask: cTask,
+    });
   };
   const removeTask = (cTask) => {
-    setCompletedTask(tasks.filter((el) => el.id !== cTask.id));
+    dispatch({
+      type: TYPES.DELETE_TASK,
+      completedTask: cTask,
+    });
   };
 
   useEffect(() => {
