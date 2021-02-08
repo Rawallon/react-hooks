@@ -3,11 +3,14 @@ import { newMessage } from '../state/actions';
 import { useAppContext } from './hooks';
 
 const PublishMessage = () => {
-  const { dispatch } = useAppContext();
+  const {
+    state: { username },
+    pubsub: { publish },
+  } = useAppContext();
 
   const [text, setText] = useState('');
   const publishMessage = () => {
-    dispatch(newMessage(text));
+    publish(newMessage({ text, username }));
   };
 
   return (

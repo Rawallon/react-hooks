@@ -1,6 +1,19 @@
-import { NEW_MESSAGE } from './types';
+import { NEW_MESSAGE, SET_USERNAME } from './types';
 import { v4 as uuidv4 } from 'uuid';
-export const newMessage = (text) => ({
+
+export const newMessage = ({ text, username }) => ({
   type: NEW_MESSAGE,
-  item: { id: uuidv4(), text, timestamp: Date.now() },
+  item: { id: uuidv4(), text, username, timestamp: Date.now() },
+});
+
+export const setUsername = (username) => {
+  return {
+    type: SET_USERNAME,
+    username,
+  };
+};
+
+export const createReaction = ({ type, emoji, username, messageId }) => ({
+  type,
+  item: { id: uuidv4(), timestamp: Date.now(), emoji, username, messageId },
 });
